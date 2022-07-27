@@ -26,6 +26,7 @@ const Header = () => {
           aria-controls='navbarColor02'
           aria-expanded='false'
           aria-label='Toggle navigation'
+          style={{color: '#fff'}}
           onClick={() => setShow(!show)}
         >
           <MDBIcon icon='bars' fas />
