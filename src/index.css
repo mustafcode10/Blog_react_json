@@ -18,3 +18,9 @@ code {
   height: 35px;
   border-color: #83ccc5;
 }
+
+.categoryErrorMsg {
+  color: red;
+  text-align: left;
+  font-size: 14px;
+}

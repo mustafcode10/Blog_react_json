@@ -25,8 +25,11 @@ const AddEditBlog = () => {
   const { title, description, category, imageUrl } = formValue;
 
   //methods
-  const handleSubmit = (e) => {};
-  const onInputChange = (e) => {};
+  const onInputChange = (e) => {
+    let { name, value } = e.target;
+    setFormValue({ ...formValue, [name]: value });
+  };
+
   const onUploadImage = async (file) => {
     console.log("file", file);
     const formData = new FormData();
@@ -36,13 +39,50 @@ const AddEditBlog = () => {
       .post("https://api.cloudinary.com/v1_1/mservices/image/upload", formData)
       .then((res) => {
         console.log("res", res);
-        // setFormValue({ ...formValue, imageUrl: res.data.secure_url });
+        setFormValue({ ...formValue, imageUrl: res.data.url });
+        toast.success("Image Uploaded Successfully");
       })
       .catch((err) => {
         console.log("err", err);
+        toast.error("Image Upload Failed");
       });
   };
-  const onCategoryChange = (e) => {};
+
+  const onCategoryChange = (e) => {
+    setCategoryErrorMsg(null);
+    setFormValue({ ...formValue, category: e.target.value });
+  };
+
+  const getDate = () => {
+    let today = new Date();
+    let dd = String(today.getDate()).padStart(2, "0");
+    let mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+    let yyyy = today.getFullYear();
+    today = mm + "/" + dd + "/" + yyyy;
+    return today;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!category) {
+      setCategoryErrorMsg("Please select a category");
+    }
+    if (title && description && imageUrl && category) {
+      const currentDate = getDate();
+      const updatedBlogData = { ...formValue, date: currentDate };
+      const response = await axios.post(
+        "http://localhost:5000/blogs",
+        updatedBlogData
+      );
+      if (response.status === 201) {
+        toast.success("Blog Added Successfully");
+      } else {
+        toast.error("Blog Add Failed");
+      }
+      setFormValue(initailState);
+      navigate("/");
+    }
+  };
 
   return (
     <MDBValidation
@@ -104,6 +144,9 @@ const AddEditBlog = () => {
             </option>
           ))}
         </select>
+        {categoryErrorMsg && (
+          <div className="categoryErrorMsg">{categoryErrorMsg}</div>
+        )}
         <br />
         <br />
         <MDBBtn type="submit" color="primary" style={{ marginRight: "15px" }}>
