@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MDBValidation, MDBInput, MDBBtn } from "mdb-react-ui-kit";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 //p7quwbvy
 const initailState = {
@@ -18,11 +18,13 @@ const options = ["Travel", "Fashion", "Fitness", "Sports", "Food", "Tech"];
 const AddEditBlog = () => {
   // navigation
   const navigate = useNavigate();
+  const { id } = useParams();
 
   // state
   const [formValue, setFormValue] = useState(initailState);
   const [categoryErrorMsg, setCategoryErrorMsg] = useState(null);
   const { title, description, category, imageUrl } = formValue;
+  const [editMode, setEditMode] = useState(false);
 
   //methods
   const onInputChange = (e) => {
@@ -67,20 +69,56 @@ const AddEditBlog = () => {
     if (!category) {
       setCategoryErrorMsg("Please select a category");
     }
+    const imageValidation = !editMode ? imageUrl : true
     if (title && description && imageUrl && category) {
-      const currentDate = getDate();
-      const updatedBlogData = { ...formValue, date: currentDate };
-      const response = await axios.post(
-        "http://localhost:5000/blogs",
-        updatedBlogData
-      );
-      if (response.status === 201) {
-        toast.success("Blog Added Successfully");
+      if(!editMode){
+        const currentDate = getDate();
+        const updatedBlogData = { ...formValue, date: currentDate };
+        const response = await axios.post(
+          "http://localhost:5000/blogs",
+          updatedBlogData
+        );
+        if (response.status === 201) {
+          toast.success("Blog Added Successfully");
+        } else {
+          toast.error("Blog Add Failed");
+        }
+
       } else {
-        toast.error("Blog Add Failed");
+        const response = await axios.put(
+          `http://localhost:5000/blogs/${id}`,
+          formValue
+        );
+        if (response.status === 200) {
+          toast.success("updated Blog  Successfully");
+        } else {
+          toast.error("updateBlog Add Failed");
+        }
+
       }
+
       setFormValue(initailState);
       navigate("/");
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      setEditMode(true);
+      getSingleBlog(id);
+    } else {
+      setEditMode(false);
+      setFormValue({ ...initailState });
+    }
+  }, [id]);
+
+  const getSingleBlog = async (id) => {
+    const singleBlog = await axios.get(`http://localhost:5000/blogs/${id}`);
+
+    if (singleBlog.status === 200) {
+      setFormValue({ ...singleBlog.data });
+    } else {
+      toast.error("Something went wrong");
     }
   };
 
@@ -91,7 +129,7 @@ const AddEditBlog = () => {
       noValidate
       onSubmit={handleSubmit}
     >
-      <p className="fs-2 fw-bold">Add Blog</p>
+      <p className="fs-2 fw-bold">{editMode ? "Update Blog" : "Add Blog"}</p>
       <div
         style={{
           margin: "auto",
@@ -124,13 +162,14 @@ const AddEditBlog = () => {
           invalid
         />
         <br />
-        <MDBInput
+        {!editMode &&  <MDBInput
           type="file"
           onChange={(e) => onUploadImage(e.target.files[0])}
           // validation="please provide a title"
           required
           invalid
-        />
+        /> }
+        
         <br />
         <select
           className="categoryDropdown"
@@ -150,7 +189,7 @@ const AddEditBlog = () => {
         <br />
         <br />
         <MDBBtn type="submit" color="primary" style={{ marginRight: "15px" }}>
-          Add
+          {editMode ? "Update" : "Add"}
         </MDBBtn>
         <MDBBtn
           color="danger"
