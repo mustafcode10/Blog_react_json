@@ -4,13 +4,16 @@ import { toast } from "react-toastify";
 import { MDBRow, MDBCol, MDBContainer, MDBTypography } from "mdb-react-ui-kit";
 import Blogs from "./../components/Blogs";
 import Search from "./../components/Search";
-import Category from './../components/Category';
+import Category from "./../components/Category";
+import LatestBlog from './../components/LatestBlog';
 
 const Home = () => {
   const [data, setData] = useState([]);
   const [searchValue, setSearchValue] = useState("");
+  const [latestBlog, setLatestBlog] = useState([]);
+
   //Categories
-const options = ["Travel", "Fashion", "Fitness", "Sports", "Food", "Tech"];
+  const options = ["Travel", "Fashion", "Fitness", "Sports", "Food", "Tech"];
 
   const loadBlogsData = async () => {
     const response = await axios.get("http://localhost:5000/blogs");
@@ -45,7 +48,7 @@ const options = ["Travel", "Fashion", "Fitness", "Sports", "Food", "Tech"];
     }
   };
   const onInputChange = (e) => {
-    if(!e.target.value){
+    if (!e.target.value) {
       loadBlogsData();
     }
     setSearchValue(e.target.value);
@@ -53,27 +56,45 @@ const options = ["Travel", "Fashion", "Fitness", "Sports", "Food", "Tech"];
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    const response = await axios.get(`http://localhost:5000/blogs?q=${searchValue}`);
-    if(response.status === 200){
-      setData(response.data)
+    const response = await axios.get(
+      `http://localhost:5000/blogs?q=${searchValue}`
+    );
+    if (response.status === 200) {
+      setData(response.data);
     } else {
-      toast.error("Something went wrong")
+      toast.error("Something went wrong");
     }
   };
   //Category
-  const handleCategory = async(category) => {
-    const response = await axios.get(`http://localhost:5000/blogs?category=${category}`)
-    if(response.status === 200){
-      setData(response.data)
+  const handleCategory = async (category) => {
+    const response = await axios.get(
+      `http://localhost:5000/blogs?category=${category}`
+    );
+    if (response.status === 200) {
+      setData(response.data);
+    } else {
+      toast.error("Something went wrong");
+    }
+  };
+
+  // latest Blogs
+  const fetchLatestBlogs = async() => {
+    const totalBlog = await axios.get(`http://localhost:5000/blogs`)
+    const start = totalBlog.data.length - 4
+    const end = totalBlog.data.length
+    const response = await axios.get(`http://localhost:5000/blogs?&_start=${start}&_end=${end}`)
+    if (response.status === 200) {
+      setLatestBlog(response.data);
+      console.log('latest', response.data)
     } else {
       toast.error("Something went wrong")
     }
 
   }
 
-
   useEffect(() => {
     loadBlogsData();
+    fetchLatestBlogs();
   }, []);
   return (
     <>
@@ -103,11 +124,15 @@ const options = ["Travel", "Fashion", "Fitness", "Sports", "Food", "Tech"];
             </MDBRow>
           </MDBContainer>
         </MDBCol>
-        <MDBCol size="3" >
-        <Category handleCategory={handleCategory} options={options} />
+        <MDBCol size="3">
+          <h4 className="text-start">Latest Blog</h4>
+          {latestBlog && latestBlog.map((item, index)=> (
+            <LatestBlog key={index} {...item} />
+
+          ))}
+          <Category handleCategory={handleCategory} options={options} />
         </MDBCol>
       </MDBRow>
-
     </>
   );
 };
