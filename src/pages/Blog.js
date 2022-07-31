@@ -10,6 +10,7 @@ import {
   MDBIcon,
   MDBTypography,
   MDBContainer,
+  MDBRow,
 } from "mdb-react-ui-kit";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -20,6 +21,7 @@ import { toast } from "react-toastify";
 const Blog = () => {
   //states
   const [blog, setBlog] = useState();
+  const [relatedPost, setRelatedPost] = useState([]);
   // params
   const { id } = useParams();
 
@@ -31,9 +33,12 @@ const Blog = () => {
 
   const getSingleBlog = async (id) => {
     const response = await axios.get(`http://localhost:5000/blogs/${id}`);
+    const relatedPostData =  await axios.get(`http://localhost:5000/blogs?category=${response.data.category}&_start=0&_end=3`)
 
-    if (response.status === 200) {
+    if (response.status === 200 || relatedPostData.status === 200) {
       setBlog(response.data);
+      setRelatedPost(relatedPostData.data)
+      console.log('related post', relatedPostData.data)
     } else {
       toast.error("Something went wrong");
     }
@@ -44,6 +49,14 @@ const Blog = () => {
     marginLeft: "10px",
     float: "right",
     marginTop: "7px",
+  };
+
+  
+  const excerpt = (str) => {
+    if (str.length > 50) {
+      str = str.substring(0, 50) + "...";
+    }
+    return str;
   };
 
   return (
@@ -87,6 +100,30 @@ const Blog = () => {
           {blog && blog.description}
         </MDBTypography>
       </div>
+     {relatedPost ? (
+      <>
+       {relatedPost.length > 1 && (<h1> Related Blogs </h1>) }
+       <MDBRow className="row-cols-1 row-cols-md-3 g-4">
+           {relatedPost.filter((item)=> item.id != id).map((item, index)=> (
+             <MDBCol>
+                <MDBCard>
+                  <Link to={`/blog/${item.id}`}>
+                    <MDBCardImage
+                      src={item.imageUrl}
+                      alt={item.title}
+                      position="top"
+                     />
+                  </Link>
+                  <MDBCardBody>
+                    <MDBCardTitle>{item.title}</MDBCardTitle>
+                    <MDBCardText>{excerpt(item.description)}</MDBCardText>
+                  </MDBCardBody>
+                </MDBCard>
+             </MDBCol>
+           ))}
+       </MDBRow>
+      </>
+     ): null}
     </MDBContainer>
   );
 };
