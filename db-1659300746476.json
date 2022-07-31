@@ -1,0 +1,28 @@
+{
+  "blogs": [
+    {
+      "title": "Food Blog updated",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+      "category": "Food",
+      "imageUrl": "http://res.cloudinary.com/mservices/image/upload/v1659222798/xewnq04smkkgofrisv5p.jpg",
+      "date": "07/30/2022",
+      "id": 1
+    },
+    {
+      "title": "Tasty Food",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+      "category": "Food",
+      "imageUrl": "http://res.cloudinary.com/mservices/image/upload/v1659227970/nvviewohpkiv0smeazsk.jpg",
+      "date": "07/30/2022",
+      "id": 2
+    },
+    {
+      "title": "Tech Blog",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+      "category": "Tech",
+      "imageUrl": "http://res.cloudinary.com/mservices/image/upload/v1659291044/nrlkzd7lipgcli0gbuvv.jpg",
+      "date": "07/31/2022",
+      "id": 3
+    }
+  ]
+}
