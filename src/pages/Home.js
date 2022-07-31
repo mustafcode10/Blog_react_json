@@ -3,9 +3,11 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { MDBRow, MDBCol, MDBContainer, MDBTypography } from "mdb-react-ui-kit";
 import Blogs from "./../components/Blogs";
+import Search from "./../components/Search";
 
 const Home = () => {
   const [data, setData] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
 
   const loadBlogsData = async () => {
     const response = await axios.get("http://localhost:5000/blogs");
@@ -39,12 +41,33 @@ const Home = () => {
         });
     }
   };
+  const onInputChange = (e) => {
+    if(!e.target.value){
+      loadBlogsData();
+    }
+    setSearchValue(e.target.value);
+  };
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    const response = await axios.get(`http://localhost:5000/blogs?q=${searchValue}`);
+    if(response.status === 200){
+      setData(response.data)
+    } else {
+      toast.error("Something went wrong")
+    }
+  };
 
   useEffect(() => {
     loadBlogsData();
   }, []);
   return (
     <>
+      <Search
+        searchValue={searchValue}
+        handleSearch={handleSearch}
+        onInputChange={onInputChange}
+      />
       <MDBRow>
         {data.length === 0 && (
           <MDBTypography className="text-center mb-0" tag="h2">
