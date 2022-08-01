@@ -5,20 +5,33 @@ import { MDBRow, MDBCol, MDBContainer, MDBTypography } from "mdb-react-ui-kit";
 import Blogs from "./../components/Blogs";
 import Search from "./../components/Search";
 import Category from "./../components/Category";
-import LatestBlog from './../components/LatestBlog';
+import LatestBlog from "./../components/LatestBlog";
+import Pagination from "./../components/Pagination";
 
 const Home = () => {
   const [data, setData] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   const [latestBlog, setLatestBlog] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalBlog, setTotalBlog] = useState(0);
+  const [pageLimit] = useState(5);
 
   //Categories
   const options = ["Travel", "Fashion", "Fitness", "Sports", "Food", "Tech"];
 
-  const loadBlogsData = async () => {
-    const response = await axios.get("http://localhost:5000/blogs");
+  const loadBlogsData = async (start, end, increase, operation) => {
+    const totalBlog = await axios.get(`http://localhost:5000/blogs`);
+    setTotalBlog(totalBlog.data.length);
+    const response = await axios.get(
+      `http://localhost:5000/blogs?&_start=${start}&_end=${end}`
+    );
     if (response.status === 200) {
       setData(response.data);
+      if (operation) {
+        setCurrentPage(0);
+      } else {
+        setCurrentPage(currentPage + increase);
+      }
     } else {
       toast.error("something went wrong");
     }
@@ -37,7 +50,7 @@ const Home = () => {
         .then((res) => {
           if (res.status === 200) {
             toast.success("Blog deleted successfully");
-            loadBlogsData();
+            loadBlogsData(0, 5, 0, "delete");
           } else {
             toast.error("Something went wrong");
           }
@@ -49,7 +62,7 @@ const Home = () => {
   };
   const onInputChange = (e) => {
     if (!e.target.value) {
-      loadBlogsData();
+      loadBlogsData(0, 5, 0);
     }
     setSearchValue(e.target.value);
   };
@@ -78,22 +91,22 @@ const Home = () => {
   };
 
   // latest Blogs
-  const fetchLatestBlogs = async() => {
-    const totalBlog = await axios.get(`http://localhost:5000/blogs`)
-    const start = totalBlog.data.length - 4
-    const end = totalBlog.data.length
-    const response = await axios.get(`http://localhost:5000/blogs?&_start=${start}&_end=${end}`)
+  const fetchLatestBlogs = async () => {
+    const totalBlog = await axios.get(`http://localhost:5000/blogs`);
+    const start = totalBlog.data.length - 4;
+    const end = totalBlog.data.length;
+    const response = await axios.get(
+      `http://localhost:5000/blogs?&_start=${start}&_end=${end}`
+    );
     if (response.status === 200) {
       setLatestBlog(response.data);
-      console.log('latest', response.data)
     } else {
-      toast.error("Something went wrong")
+      toast.error("Something went wrong");
     }
-
-  }
+  };
 
   useEffect(() => {
-    loadBlogsData();
+    loadBlogsData(0, 5, 0);
     fetchLatestBlogs();
   }, []);
   return (
@@ -126,13 +139,22 @@ const Home = () => {
         </MDBCol>
         <MDBCol size="3">
           <h4 className="text-start">Latest Blog</h4>
-          {latestBlog && latestBlog.map((item, index)=> (
-            <LatestBlog key={index} {...item} />
-
-          ))}
+          {latestBlog &&
+            latestBlog.map((item, index) => (
+              <LatestBlog key={index} {...item} />
+            ))}
           <Category handleCategory={handleCategory} options={options} />
         </MDBCol>
       </MDBRow>
+      <div className="mt-3">
+        <Pagination
+          currentPage={currentPage}
+          loadBlogsData={loadBlogsData}
+          pageLimit={pageLimit}
+          data={data}
+          totalBlog={totalBlog}
+        />
+      </div>
     </>
   );
 };
